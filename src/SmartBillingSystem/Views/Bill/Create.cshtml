@@ -24,37 +24,6 @@
                 </div>
             }
 
-            <div id="empty-state" class="empty-state">
-                <div class="empty-state__icon">+</div>
-                <h3>Add Products to Your Invoice</h3>
-                <p>Enter product names, prices, and quantities below. Use AI suggestions to discover related products.</p>
-                <div class="empty-state__steps">
-                    <div class="step">
-                        <span class="step__number">1</span>
-                        <span class="step__text">Add products with prices and quantities</span>
-                    </div>
-                    <div class="step">
-                        <span class="step__number">2</span>
-                        <span class="step__text">Get AI suggestions for related products</span>
-                    </div>
-                    <div class="step">
-                        <span class="step__number">3</span>
-                        <span class="step__text">Generate your professional bill</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="customer-info" style="margin-bottom: var(--space-8); display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-6);">
-                <div class="form-group">
-                    <label class="form-label" for="CustomerName">Customer Name</label>
-                    <input type="text" id="CustomerName" name="CustomerName" class="form-input" value="@Model.CustomerName" required />
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="CustomerContact">Contact (Email or Phone)</label>
-                    <input type="text" id="CustomerContact" name="CustomerContact" class="form-input" value="@Model.CustomerContact" required />
-                </div>
-            </div>
-
             <div id="table-wrapper">
                 <table class="product-table">
                     <thead>
@@ -72,13 +41,6 @@
 
                 <div style="display: flex; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-8);">
                     <button type="button" class="btn btn--ghost" id="add-row-btn">+ Add Row</button>
-                    <button type="button" class="btn btn--secondary" id="suggest-btn">Suggest Products</button>
-                </div>
-
-                <div id="recommendations-section" style="display: none; margin-bottom: var(--space-8); border-top: 2px solid var(--color-border); padding-top: var(--space-8);">
-                    <p class="text-label" style="margin-bottom: var(--space-4);">AI Recommendations</p>
-                    <div id="recommendations-list" style="display: flex; gap: var(--space-4); flex-wrap: wrap;">
-                    </div>
                 </div>
             </div>
 
@@ -101,8 +63,22 @@
 
             <hr class="section-rule section-rule--thin" style="margin-top: var(--space-12); margin-bottom: var(--space-8);" />
 
+            <div id="customer-info-section" style="display: none; margin-bottom: var(--space-8); padding: var(--space-8); border: 2px solid var(--color-border); background: var(--color-muted);">
+                <h2 style="font-size: var(--text-h3); margin-bottom: var(--space-6);">Customer Information</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-6);">
+                    <div class="form-group">
+                        <label class="form-label" for="CustomerName">Customer Name *</label>
+                        <input type="text" id="CustomerName" name="CustomerName" class="form-input" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="CustomerContact">Contact (Email or Phone) *</label>
+                        <input type="text" id="CustomerContact" name="CustomerContact" class="form-input" required />
+                    </div>
+                </div>
+            </div>
+
             <div style="display: flex; gap: var(--space-4); flex-wrap: wrap;">
-                <button type="submit" class="btn btn--primary">Generate Bill →</button>
+                <button type="submit" class="btn btn--primary" id="generate-bill-btn">Generate Bill →</button>
                 <a asp-controller="Home" asp-action="Index" class="btn btn--secondary">Cancel</a>
             </div>
         </form>

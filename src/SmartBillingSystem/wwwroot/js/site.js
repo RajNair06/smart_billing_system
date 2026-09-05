@@ -34,16 +34,28 @@
   const ProductTable = {
     tbody: null,
     rowIndex: 0,
+    customerInfoShown: false,
 
     init() {
       this.tbody = document.getElementById('product-rows');
       const addBtn = document.getElementById('add-row-btn');
-      const suggestBtn = document.getElementById('suggest-btn');
+      const generateBtn = document.getElementById('generate-bill-btn');
+      const form = document.getElementById('billing-form');
       
       if (!this.tbody) return;
 
       addBtn?.addEventListener('click', () => this.addRow());
-      suggestBtn?.addEventListener('click', () => this.suggestForAllProducts());
+      
+      generateBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.showCustomerInfo();
+      });
+
+      form?.addEventListener('submit', (e) => {
+        if (!this.validateBeforeSubmit(e)) {
+          e.preventDefault();
+        }
+      });
 
       this.tbody.addEventListener('click', (e) => {
         const removeBtn = e.target.closest('.btn-remove-row');
@@ -56,6 +68,8 @@
           this.addRow();
         }
       });
+
+      this.addRow();
     },
 
     addRow(data) {
@@ -117,63 +131,43 @@
       }, 100);
     },
 
-    async suggestForAllProducts() {
-      const btn = document.getElementById('suggest-btn');
-      const products = Array.from(document.querySelectorAll('.product-name'))
-        .map(input => input.value.trim())
-        .filter(name => name.length > 0);
+    showCustomerInfo() {
+      const hasValidProducts = Array.from(document.querySelectorAll('.product-name'))
+        .some(input => input.value.trim().length > 0);
 
-      if (products.length === 0) {
-        alert('Please add at least one product first');
+      if (!hasValidProducts) {
+        alert('Please add at least one product before generating a bill');
         return;
       }
 
-      btn.disabled = true;
-      btn.textContent = 'Analyzing';
-      btn.classList.add('btn--loading');
-
-      try {
-        const response = await fetch('/api/gemini/recommend', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ products })
-        });
-
-        const data = await response.json();
-        this.displayRecommendations(data.recommendations || []);
-      } catch (error) {
-        console.error('Failed to get recommendations:', error);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Suggest Products';
-        btn.classList.remove('btn--loading');
+      if (!this.customerInfoShown) {
+        const section = document.getElementById('customer-info-section');
+        if (section) {
+          section.style.display = 'block';
+          this.customerInfoShown = true;
+          setTimeout(() => {
+            const nameInput = document.getElementById('CustomerName');
+            if (nameInput) nameInput.focus();
+          }, 100);
+        }
       }
     },
 
-    displayRecommendations(recommendations) {
-      const section = document.getElementById('recommendations-section');
-      const list = document.getElementById('recommendations-list');
-
-      list.innerHTML = '';
-
-      if (recommendations.length === 0) {
-        section.style.display = 'none';
-        return;
+    validateBeforeSubmit(e) {
+      if (!this.customerInfoShown) {
+        this.showCustomerInfo();
+        return false;
       }
 
-      recommendations.forEach(product => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'btn btn--ghost';
-        btn.textContent = `+ ${product}`;
-        btn.onclick = () => {
-          this.addRow({ name: product, quantity: 1 });
-          TotalCalculator.recalculate();
-        };
-        list.appendChild(btn);
-      });
+      const nameInput = document.getElementById('CustomerName');
+      const contactInput = document.getElementById('CustomerContact');
 
-      section.style.display = 'block';
+      if (!nameInput?.value.trim() || !contactInput?.value.trim()) {
+        alert('Please fill in customer name and contact information');
+        return false;
+      }
+
+      return true;
     }
   };
 

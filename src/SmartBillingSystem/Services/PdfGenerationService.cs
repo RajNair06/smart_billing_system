@@ -66,9 +66,6 @@ public class PdfGenerationService : IPdfGenerationService
         {
             col.Item().Element(c => ComposeItemsTable(c, bill));
             col.Item().PaddingTop(20).Element(c => ComposeTotals(c, bill));
-
-            if (bill.Recommendations.Any())
-                col.Item().PaddingTop(20).Element(c => ComposeRecommendations(c, bill));
         });
     }
 
@@ -127,20 +124,6 @@ public class PdfGenerationService : IPdfGenerationService
                 row.RelativeItem().Text("GRAND TOTAL:").FontSize(14).Bold().AlignRight();
                 row.ConstantItem(120).Text($"₹{bill.GrandTotal:N2}").FontSize(14).Bold().AlignRight();
             });
-        });
-    }
-
-    private void ComposeRecommendations(IContainer container, Bill bill)
-    {
-        container.Column(col =>
-        {
-            col.Item().PaddingTop(16).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
-            col.Item().PaddingTop(8).Text("AI RECOMMENDATIONS").FontSize(12).Bold();
-            col.Item().PaddingTop(4).Text("You might also like:").FontSize(10).FontColor(Colors.Grey.Darken2);
-            foreach (var rec in bill.Recommendations)
-            {
-                col.Item().PaddingVertical(2).Text($"• {rec}").FontSize(10);
-            }
         });
     }
 

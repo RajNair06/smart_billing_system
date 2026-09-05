@@ -99,25 +99,6 @@
             </div>
         </div>
 
-        @if (Model.Bill.Recommendations.Any())
-        {
-            <hr class="section-rule section-rule--thin" style="margin-top: var(--space-16);" />
-            <div data-animate="fade-up" data-animate-delay="3" style="margin-top: var(--space-12);">
-                <p class="text-label" style="margin-bottom: var(--space-8);">AI Recommendations</p>
-                <div class="recommendation-grid">
-                    @foreach (var rec in Model.Bill.Recommendations)
-                    {
-                        <div class="recommendation-card">
-                            <p class="text-label" style="margin-bottom: var(--space-3);">Suggested</p>
-                            <p style="font-family: var(--font-display); font-size: var(--text-body-lg); font-weight: 700;">
-                                @rec
-                            </p>
-                        </div>
-                    }
-                </div>
-            </div>
-        }
-
         <hr class="section-rule section-rule--thin no-print" style="margin-top: var(--space-12);" />
 
         <div class="no-print" style="margin-top: var(--space-8); display: flex; gap: var(--space-4); flex-wrap: wrap;" data-animate="fade-up" data-animate-delay="4">

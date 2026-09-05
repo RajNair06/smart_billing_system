@@ -96,28 +96,6 @@
             font-size: 1.25rem;
             font-weight: 700;
         }
-        .print-recommendations {
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid #E5E5E5;
-        }
-        .print-recommendations h3 {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            color: #525252;
-            margin-bottom: 0.5rem;
-        }
-        .print-recommendations li {
-            font-size: 0.9rem;
-            padding: 0.15rem 0;
-            list-style: none;
-        }
-        .print-recommendations li::before {
-            content: "— ";
-            color: #525252;
-        }
         .print-actions {
             margin-top: 2rem;
             display: flex;
@@ -192,19 +170,6 @@
                 <span>₹@Model.Bill.GrandTotal.ToString("N2")</span>
             </div>
         </div>
-
-        @if (Model.Bill.Recommendations.Any())
-        {
-            <div class="print-recommendations">
-                <h3>AI Recommendations</h3>
-                <ul>
-                    @foreach (var rec in Model.Bill.Recommendations)
-                    {
-                        <li>@rec</li>
-                    }
-                </ul>
-            </div>
-        }
 
         <div class="print-actions no-print">
             <button type="button" class="btn btn--primary" onclick="window.print()">Print</button>

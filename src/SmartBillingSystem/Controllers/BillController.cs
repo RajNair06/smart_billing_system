@@ -30,7 +30,7 @@ public class BillController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CreateBillViewModel model)
+    public IActionResult Create(CreateBillViewModel model)
     {
         if (model.Items == null || !model.Items.Any())
         {
@@ -48,16 +48,6 @@ public class BillController : Controller
         {
             ModelState.AddModelError("", "Please add at least one valid product with name, price, and quantity.");
             return View(model);
-        }
-
-        var productNames = bill.Items.Select(i => i.ProductName).ToList();
-        try
-        {
-            bill.Recommendations = await _geminiService.GetBillRecommendationsAsync(productNames);
-        }
-        catch (Exception)
-        {
-            bill.Recommendations = new List<string>();
         }
 
         return View("Result", new BillResultViewModel { Bill = bill });
