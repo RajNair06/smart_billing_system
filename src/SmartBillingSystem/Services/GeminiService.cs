@@ -44,6 +44,41 @@ public class GeminiService : IGeminiService
         return await CallGeminiAsync(prompt);
     }
 
+    public async Task<string> GetDebugResponseAsync(string prompt)
+    {
+        if (string.IsNullOrEmpty(_apiKey))
+            return "ERROR: API key is empty";
+
+        var requestBody = BuildRequestBody(prompt);
+
+        var response = await _httpClient.PostAsJsonAsync(
+            $"v1beta/models/{_model}:generateContent?key={_apiKey}",
+            requestBody);
+
+        var rawContent = await response.Content.ReadAsStringAsync();
+        return $"STATUS: {response.StatusCode}\nMODEL: {_model}\n\nRESPONSE:\n{rawContent}";
+    }
+
+    private object BuildRequestBody(string prompt)
+    {
+        return new
+        {
+            contents = new[]
+            {
+                new { parts = new[] { new { text = prompt } } }
+            },
+            generationConfig = new
+            {
+                temperature = 0.7,
+                maxOutputTokens = 256
+            },
+            thinkingConfig = new
+            {
+                thinkingBudget = 0
+            }
+        };
+    }
+
     private async Task<List<string>> CallGeminiAsync(string prompt)
     {
         if (string.IsNullOrEmpty(_apiKey))
@@ -54,18 +89,7 @@ public class GeminiService : IGeminiService
 
         try
         {
-            var requestBody = new
-            {
-                contents = new[]
-                {
-                    new { parts = new[] { new { text = prompt } } }
-                },
-                generationConfig = new
-                {
-                    temperature = 0.7,
-                    maxOutputTokens = 256
-                }
-            };
+            var requestBody = BuildRequestBody(prompt);
 
             var response = await _httpClient.PostAsJsonAsync(
                 $"v1beta/models/{_model}:generateContent?key={_apiKey}",
@@ -80,11 +104,29 @@ public class GeminiService : IGeminiService
             }
 
             var json = await response.Content.ReadFromJsonAsync<JsonDocument>();
-            string rawText = json!.RootElement
-                .GetProperty("candidates")[0]
-                .GetProperty("content")
-                .GetProperty("parts")[0]
-                .GetProperty("text").GetString() ?? "[]";
+            var candidates = json!.RootElement.GetProperty("candidates");
+            
+            if (candidates.GetArrayLength() == 0)
+            {
+                _logger.LogWarning("Gemini returned empty candidates");
+                return new List<string>();
+            }
+
+            var parts = candidates[0].GetProperty("content").GetProperty("parts");
+            string rawText = "[]";
+
+            foreach (var part in parts.EnumerateArray())
+            {
+                if (part.TryGetProperty("text", out var textProp))
+                {
+                    var text = textProp.GetString();
+                    if (!string.IsNullOrEmpty(text) && !part.TryGetProperty("thoughtSignature", out _))
+                    {
+                        rawText = text;
+                        break;
+                    }
+                }
+            }
 
             rawText = rawText.Replace("```json", "").Replace("```", "").Trim();
 
