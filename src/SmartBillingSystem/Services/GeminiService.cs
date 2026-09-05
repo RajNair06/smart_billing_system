@@ -44,21 +44,6 @@ public class GeminiService : IGeminiService
         return await CallGeminiAsync(prompt);
     }
 
-    public async Task<string> GetDebugResponseAsync(string prompt)
-    {
-        if (string.IsNullOrEmpty(_apiKey))
-            return "ERROR: API key is empty";
-
-        var requestBody = BuildRequestBody(prompt);
-
-        var response = await _httpClient.PostAsJsonAsync(
-            $"v1beta/models/{_model}:generateContent?key={_apiKey}",
-            requestBody);
-
-        var rawContent = await response.Content.ReadAsStringAsync();
-        return $"STATUS: {response.StatusCode}\nMODEL: {_model}\n\nRESPONSE:\n{rawContent}";
-    }
-
     private object BuildRequestBody(string prompt)
     {
         return new

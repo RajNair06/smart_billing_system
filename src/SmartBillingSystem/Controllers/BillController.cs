@@ -68,9 +68,9 @@ public class BillController : Controller
             var result = await _geminiService.GetProductRecommendationAsync(productName);
             return Json(new { recommendations = result.Recommendations });
         }
-        catch (Exception ex)
+        catch
         {
-            return Json(new { recommendations = new List<string>(), error = ex.Message });
+            return Json(new { recommendations = new List<string>() });
         }
     }
 

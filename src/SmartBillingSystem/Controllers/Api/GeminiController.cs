@@ -23,13 +23,6 @@ public class GeminiController : ControllerBase
         var recommendations = await _gemini.GetBillRecommendationsAsync(request.Products.ToList());
         return Ok(new { recommendations });
     }
-
-    [HttpGet("debug")]
-    public async Task<IActionResult> Debug([FromQuery] string prompt = "Say hello")
-    {
-        var result = await _gemini.GetDebugResponseAsync(prompt);
-        return Content(result, "text/plain");
-    }
 }
 
 public class RecommendRequest
