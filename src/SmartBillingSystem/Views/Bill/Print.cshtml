@@ -138,6 +138,22 @@
             </div>
         </div>
 
+        @if (!string.IsNullOrWhiteSpace(Model.Bill.CustomerName))
+        {
+            <div style="margin-bottom: 1.5rem; padding: 1rem; border: 1px solid #E5E5E5;">
+                <p style="font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: #525252; margin-bottom: 0.5rem;">Bill To</p>
+                <p style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.1rem; font-weight: 700; margin: 0;">
+                    @Model.Bill.CustomerName
+                </p>
+                @if (!string.IsNullOrWhiteSpace(Model.Bill.CustomerContact))
+                {
+                    <p style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #525252; margin: 0.25rem 0 0 0;">
+                        @Model.Bill.CustomerContact
+                    </p>
+                }
+            </div>
+        }
+
         <table class="print-table">
             <thead>
                 <tr>

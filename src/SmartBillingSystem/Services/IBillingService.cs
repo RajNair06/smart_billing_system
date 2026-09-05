@@ -10,6 +10,8 @@ public interface IBillingService
     decimal CalculateTotal(List<BillItem> items, decimal taxRate);
     Bill CreateBill(List<BillItem> items);
     Bill CreateBill(List<BillItem> items, decimal taxRate);
+    Bill CreateBill(List<BillItem> items, string customerName, string customerContact);
+    Bill CreateBill(List<BillItem> items, string customerName, string customerContact, decimal taxRate);
     decimal ApplyDiscount(decimal amount, decimal discountPercent);
     string FormatCurrency(decimal amount);
 }

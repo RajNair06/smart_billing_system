@@ -37,10 +37,22 @@ public class BillingService : IBillingService
 
     public Bill CreateBill(List<BillItem> items, decimal taxRate)
     {
+        return CreateBill(items, string.Empty, string.Empty, taxRate);
+    }
+
+    public Bill CreateBill(List<BillItem> items, string customerName, string customerContact)
+    {
+        return CreateBill(items, customerName, customerContact, DefaultTaxRate);
+    }
+
+    public Bill CreateBill(List<BillItem> items, string customerName, string customerContact, decimal taxRate)
+    {
         var bill = new Bill
         {
             BillId = Guid.NewGuid().ToString("N")[..8].ToUpper(),
             DateCreated = DateTime.Now,
+            CustomerName = customerName ?? string.Empty,
+            CustomerContact = customerContact ?? string.Empty,
             TaxRate = taxRate
         };
 

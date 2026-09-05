@@ -40,6 +40,16 @@ public class PdfGenerationService : IPdfGenerationService
                 {
                     c.Item().Text($"Bill #{bill.BillId}").FontSize(14).SemiBold();
                     c.Item().Text($"Date: {bill.DateCreated:dd-MMM-yyyy}").FontSize(10).FontColor(Colors.Grey.Darken2);
+                    
+                    if (!string.IsNullOrWhiteSpace(bill.CustomerName))
+                    {
+                        c.Item().PaddingTop(8).Text("BILL TO:").FontSize(9).Bold().FontColor(Colors.Grey.Darken3);
+                        c.Item().Text(bill.CustomerName).FontSize(11).SemiBold();
+                        if (!string.IsNullOrWhiteSpace(bill.CustomerContact))
+                        {
+                            c.Item().Text(bill.CustomerContact).FontSize(9).FontColor(Colors.Grey.Darken2);
+                        }
+                    }
                 });
                 row.RelativeItem().AlignRight().Column(c =>
                 {

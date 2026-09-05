@@ -30,20 +30,24 @@ public class BillController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(List<BillItem>? items)
+    public async Task<IActionResult> Create(CreateBillViewModel model)
     {
-        if (items == null || !items.Any())
+        if (model.Items == null || !model.Items.Any())
         {
             ModelState.AddModelError("", "No items were submitted. Please add at least one product.");
             return View(new CreateBillViewModel());
         }
 
-        var bill = _billingService.CreateBill(items);
+        var bill = _billingService.CreateBill(
+            model.Items, 
+            model.CustomerName ?? string.Empty, 
+            model.CustomerContact ?? string.Empty
+        );
 
         if (!bill.Items.Any())
         {
             ModelState.AddModelError("", "Please add at least one valid product with name, price, and quantity.");
-            return View(new CreateBillViewModel { Items = items });
+            return View(model);
         }
 
         var productNames = bill.Items.Select(i => i.ProductName).ToList();
@@ -82,9 +86,13 @@ public class BillController : Controller
     }
 
     [HttpPost]
-    public IActionResult DownloadPdf(List<BillItem> items)
+    public IActionResult DownloadPdf(List<BillItem> items, string? customerName, string? customerContact)
     {
-        var bill = _billingService.CreateBill(items);
+        var bill = _billingService.CreateBill(
+            items, 
+            customerName ?? string.Empty, 
+            customerContact ?? string.Empty
+        );
         var pdfBytes = _pdfService.GenerateBillPdf(bill);
         return File(pdfBytes, "application/pdf", $"Bill-{bill.BillId}.pdf");
     }

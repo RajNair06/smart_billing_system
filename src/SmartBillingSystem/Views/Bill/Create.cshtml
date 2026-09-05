@@ -44,6 +44,17 @@
                 </div>
             </div>
 
+            <div class="customer-info" style="margin-bottom: var(--space-8); display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-6);">
+                <div class="form-group">
+                    <label class="form-label" for="CustomerName">Customer Name</label>
+                    <input type="text" id="CustomerName" name="CustomerName" class="form-input" value="@Model.CustomerName" required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="CustomerContact">Contact (Email or Phone)</label>
+                    <input type="text" id="CustomerContact" name="CustomerContact" class="form-input" value="@Model.CustomerContact" required />
+                </div>
+            </div>
+
             <div id="table-wrapper">
                 <table class="product-table">
                     <thead>

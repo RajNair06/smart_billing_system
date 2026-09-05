@@ -4,6 +4,8 @@ public class Bill
 {
     public string BillId { get; set; } = string.Empty;
     public DateTime DateCreated { get; set; } = DateTime.Now;
+    public string CustomerName { get; set; } = string.Empty;
+    public string CustomerContact { get; set; } = string.Empty;
     public List<BillItem> Items { get; set; } = new();
     public decimal TaxRate { get; set; } = 0.18m;
     public List<string> Recommendations { get; set; } = new();

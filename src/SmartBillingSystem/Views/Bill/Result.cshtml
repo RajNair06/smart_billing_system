@@ -31,6 +31,21 @@
                     @Model.Bill.DateCreated.ToString("dd MMMM yyyy")
                 </p>
             </div>
+            @if (!string.IsNullOrWhiteSpace(Model.Bill.CustomerName))
+            {
+                <div>
+                    <p class="text-label" style="margin-bottom: var(--space-2);">Customer</p>
+                    <p style="font-family: var(--font-display); font-size: var(--text-body-lg); font-weight: 700;">
+                        @Model.Bill.CustomerName
+                    </p>
+                    @if (!string.IsNullOrWhiteSpace(Model.Bill.CustomerContact))
+                    {
+                        <p class="text-muted" style="font-family: var(--font-mono); font-size: var(--text-small);">
+                            @Model.Bill.CustomerContact
+                        </p>
+                    }
+                </div>
+            }
             <div style="text-align: right;">
                 <p class="text-label" style="margin-bottom: var(--space-2);">Items</p>
                 <p class="text-numeric" style="font-family: var(--font-mono); font-size: var(--text-body);">
@@ -108,6 +123,8 @@
         <div class="no-print" style="margin-top: var(--space-8); display: flex; gap: var(--space-4); flex-wrap: wrap;" data-animate="fade-up" data-animate-delay="4">
             <button type="button" class="btn btn--primary" onclick="window.print()">Print</button>
             <form asp-action="DownloadPdf" asp-controller="Bill" method="post" style="display: inline;">
+                <input type="hidden" name="customerName" value="@Model.Bill.CustomerName" />
+                <input type="hidden" name="customerContact" value="@Model.Bill.CustomerContact" />
                 @foreach (var item in Model.Bill.Items)
                 {
                     <input type="hidden" name="items[@(item.Id - 1)].ProductName" value="@item.ProductName" />
