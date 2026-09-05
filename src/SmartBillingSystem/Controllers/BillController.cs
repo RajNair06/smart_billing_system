@@ -30,7 +30,6 @@ public class BillController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(List<BillItem>? items)
     {
         if (items == null || !items.Any())
@@ -83,7 +82,6 @@ public class BillController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public IActionResult DownloadPdf(List<BillItem> items)
     {
         var bill = _billingService.CreateBill(items);

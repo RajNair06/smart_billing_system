@@ -13,7 +13,6 @@
         <hr class="section-rule section-rule--thin" style="margin-bottom: var(--space-12);" />
 
         <form id="billing-form" asp-action="Create" asp-controller="Bill" method="post" data-animate="fade-up" data-animate-delay="1">
-            @Html.AntiForgeryToken()
 
             @if (!ViewData.ModelState.IsValid)
             {

@@ -108,7 +108,6 @@
         <div class="no-print" style="margin-top: var(--space-8); display: flex; gap: var(--space-4); flex-wrap: wrap;" data-animate="fade-up" data-animate-delay="4">
             <button type="button" class="btn btn--primary" onclick="window.print()">Print</button>
             <form asp-action="DownloadPdf" asp-controller="Bill" method="post" style="display: inline;">
-                @Html.AntiForgeryToken()
                 @foreach (var item in Model.Bill.Items)
                 {
                     <input type="hidden" name="items[@(item.Id - 1)].ProductName" value="@item.ProductName" />
