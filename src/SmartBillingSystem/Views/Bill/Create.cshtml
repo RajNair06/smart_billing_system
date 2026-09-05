@@ -25,22 +25,59 @@
                 </div>
             }
 
-            <table class="product-table">
-                <thead>
-                    <tr>
-                        <th style="width: 36%;">Product</th>
-                        <th style="width: 18%;" class="text-right">Price (₹)</th>
-                        <th style="width: 10%;" class="text-right">Qty</th>
-                        <th style="width: 16%;" class="text-right">Total</th>
-                        <th style="width: 20%;"></th>
-                    </tr>
-                </thead>
-                <tbody id="product-rows">
-                </tbody>
-            </table>
+            <div id="empty-state" class="empty-state">
+                <div class="empty-state__icon">+</div>
+                <h3>Add Your First Product</h3>
+                <p>Enter product names, prices, and quantities to build your invoice.</p>
+                <div class="empty-state__steps">
+                    <div class="step">
+                        <span class="step__number">1</span>
+                        <span class="step__text">Add products with prices and quantities</span>
+                    </div>
+                    <div class="step">
+                        <span class="step__number">2</span>
+                        <span class="step__text">Get AI suggestions for related products</span>
+                    </div>
+                    <div class="step">
+                        <span class="step__number">3</span>
+                        <span class="step__text">Generate your professional bill</span>
+                    </div>
+                </div>
+                <button type="button" class="btn btn--primary" id="empty-add-btn">+ Add First Product</button>
+            </div>
 
-            <div style="display: flex; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-16);">
-                <button type="button" class="btn btn--ghost" id="add-row-btn">+ Add Row</button>
+            <div id="table-wrapper" style="display: none;">
+                <div id="table-helper" class="table-helper">
+                    <p class="text-small" style="color: var(--color-muted); flex: 1;">
+                        Add more products, adjust quantities, or get AI suggestions for related items.
+                    </p>
+                    <button type="button" class="helper-dismiss" id="dismiss-helper" aria-label="Dismiss">&times;</button>
+                </div>
+
+                <table class="product-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">Product</th>
+                            <th style="width: 20%;" class="text-right">Price (₹)</th>
+                            <th style="width: 12%;" class="text-right">Qty</th>
+                            <th style="width: 18%;" class="text-right">Total</th>
+                            <th style="width: 10%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="product-rows">
+                    </tbody>
+                </table>
+
+                <div style="display: flex; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-8);">
+                    <button type="button" class="btn btn--ghost" id="add-row-btn">+ Add Row</button>
+                    <button type="button" class="btn btn--secondary" id="suggest-btn" disabled>Suggest Products</button>
+                </div>
+
+                <div id="recommendations-section" style="display: none; margin-bottom: var(--space-8); border-top: 2px solid var(--color-border); padding-top: var(--space-8);">
+                    <p class="text-label" style="margin-bottom: var(--space-4);">AI Recommendations</p>
+                    <div id="recommendations-list" style="display: flex; gap: var(--space-4); flex-wrap: wrap;">
+                    </div>
+                </div>
             </div>
 
             <div style="display: flex; justify-content: flex-end;" data-animate="fade-up" data-animate-delay="2">

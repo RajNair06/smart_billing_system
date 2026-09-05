@@ -38,21 +38,41 @@
     init() {
       this.tbody = document.getElementById('product-rows');
       const addBtn = document.getElementById('add-row-btn');
-      if (!this.tbody || !addBtn) return;
+      const emptyAddBtn = document.getElementById('empty-add-btn');
+      const suggestBtn = document.getElementById('suggest-btn');
+      const dismissBtn = document.getElementById('dismiss-helper');
+      
+      if (!this.tbody) return;
 
-      addBtn.addEventListener('click', () => this.addRow());
+      addBtn?.addEventListener('click', () => this.addRow());
+      emptyAddBtn?.addEventListener('click', () => {
+        this.addRow();
+        this.updateViewState();
+      });
+      
+      suggestBtn?.addEventListener('click', () => this.suggestForAllProducts());
+      
+      dismissBtn?.addEventListener('click', () => {
+        const helper = document.getElementById('table-helper');
+        if (helper) helper.style.display = 'none';
+      });
 
       this.tbody.addEventListener('click', (e) => {
         const removeBtn = e.target.closest('.btn-remove-row');
-        if (removeBtn) this.removeRow(removeBtn.closest('tr'));
-
-        const suggestBtn = e.target.closest('.btn-suggest');
-        if (suggestBtn) this.suggestProduct(suggestBtn);
+        if (removeBtn) {
+          this.removeRow(removeBtn.closest('tr'));
+          this.updateViewState();
+        }
       });
 
-      if (this.tbody.querySelectorAll('tr').length === 0) {
-        this.addRow();
-      }
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          e.preventDefault();
+          this.addRow();
+        }
+      });
+
+      this.updateViewState();
     },
 
     addRow(data) {
@@ -82,10 +102,6 @@
           <span class="product-row-total text-numeric">₹0.00</span>
         </td>
         <td style="white-space:nowrap; text-align:right;">
-          <button type="button" class="btn btn--small btn--secondary btn-suggest"
-                  title="AI Suggest" aria-label="Get AI suggestions">
-            AI
-          </button>
           <button type="button" class="btn btn--ghost btn-remove-row"
                   title="Remove" aria-label="Remove row">&times;</button>
         </td>
@@ -99,7 +115,14 @@
       priceInput.addEventListener('input', () => TotalCalculator.recalculate());
 
       ScrollAnimator.observeNew('tr[data-animate]');
-      tr.querySelector('.product-name').focus();
+      
+      const firstInput = tr.querySelector('.product-name');
+      if (firstInput && !data) {
+        setTimeout(() => firstInput.focus(), 100);
+      }
+
+      this.updateSuggestButton();
+      return tr;
     },
 
     removeRow(tr) {
@@ -110,6 +133,7 @@
         tr.querySelector('.product-price').value = '';
         tr.querySelector('.product-row-total').textContent = '₹0.00';
         TotalCalculator.recalculate();
+        this.updateSuggestButton();
         return;
       }
       tr.style.opacity = '0';
@@ -117,66 +141,95 @@
       setTimeout(() => {
         tr.remove();
         TotalCalculator.recalculate();
+        this.updateSuggestButton();
       }, 100);
     },
 
-    suggestProduct(btn) {
-      const tr = btn.closest('tr');
-      const nameInput = tr.querySelector('.product-name');
-      const productName = nameInput?.value?.trim();
+    async suggestForAllProducts() {
+      const btn = document.getElementById('suggest-btn');
+      const products = Array.from(document.querySelectorAll('.product-name'))
+        .map(input => input.value.trim())
+        .filter(name => name.length > 0);
 
-      if (!productName) {
-        nameInput?.focus();
+      if (products.length === 0) {
+        alert('Please add at least one product first');
         return;
       }
 
       btn.disabled = true;
-      btn.textContent = '...';
+      btn.textContent = 'Analyzing';
+      btn.classList.add('btn--loading');
 
-      fetch('/Bill/GetRecommendation?productName=' + encodeURIComponent(productName))
-        .then(r => r.json())
-        .then(data => {
-          const recs = data.recommendations || [];
-          if (recs.length > 0) {
-            this.showProductRecommendations(tr, recs);
-          }
-        })
-        .catch(() => {})
-        .finally(() => {
-          btn.disabled = false;
-          btn.textContent = 'AI';
+      try {
+        const response = await fetch('/api/gemini/recommend', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ products })
         });
+
+        const data = await response.json();
+        this.displayRecommendations(data.recommendations || []);
+      } catch (error) {
+        console.error('Failed to get recommendations:', error);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Suggest Products';
+        btn.classList.remove('btn--loading');
+      }
     },
 
-    showProductRecommendations(tr, recommendations) {
-      let recDiv = tr.querySelector('.inline-recommendations');
-      if (!recDiv) {
-        recDiv = document.createElement('div');
-        recDiv.className = 'inline-recommendations';
-        recDiv.setAttribute('colspan', '5');
-        tr.appendChild(recDiv);
-      }
-      recDiv.innerHTML = `
-        <div style="grid-column: 1/-1; padding: var(--space-3) 0; border-top: 1px solid var(--color-border-light);">
-          <span class="text-label" style="display:block; margin-bottom: var(--space-2);">
-            AI Recommends
-          </span>
-          <div style="display:flex; gap:var(--space-2); flex-wrap:wrap;">
-            ${recommendations.map(rec => `
-              <button type="button" class="btn btn--small btn--secondary btn-add-rec"
-                      data-name="${rec}">${rec}</button>
-            `).join('')}
-          </div>
-        </div>
-      `;
+    displayRecommendations(recommendations) {
+      const section = document.getElementById('recommendations-section');
+      const list = document.getElementById('recommendations-list');
 
-      recDiv.querySelectorAll('.btn-add-rec').forEach(btn => {
-        btn.addEventListener('click', () => {
-          ProductTable.addRow({ name: btn.dataset.name, quantity: 1 });
+      list.innerHTML = '';
+
+      if (recommendations.length === 0) {
+        section.style.display = 'none';
+        return;
+      }
+
+      recommendations.forEach(product => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn--ghost';
+        btn.textContent = `+ ${product}`;
+        btn.onclick = () => {
+          this.addRow({ name: product, quantity: 1 });
           TotalCalculator.recalculate();
-          recDiv.remove();
-        });
+          this.updateViewState();
+        };
+        list.appendChild(btn);
       });
+
+      section.style.display = 'block';
+    },
+
+    updateViewState() {
+      const hasProducts = this.tbody.querySelectorAll('tr').length > 0;
+      const emptyState = document.getElementById('empty-state');
+      const tableWrapper = document.getElementById('table-wrapper');
+
+      if (hasProducts) {
+        emptyState.style.display = 'none';
+        tableWrapper.style.display = 'block';
+      } else {
+        emptyState.style.display = 'block';
+        tableWrapper.style.display = 'none';
+      }
+
+      this.updateSuggestButton();
+    },
+
+    updateSuggestButton() {
+      const suggestBtn = document.getElementById('suggest-btn');
+      if (!suggestBtn) return;
+      
+      const hasProducts = this.tbody.querySelectorAll('tr').length > 0;
+      const hasProductNames = Array.from(document.querySelectorAll('.product-name'))
+        .some(input => input.value.trim().length > 0);
+      
+      suggestBtn.disabled = !hasProducts || !hasProductNames;
     }
   };
 
