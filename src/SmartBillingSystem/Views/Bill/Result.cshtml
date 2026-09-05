@@ -1,0 +1,123 @@
+@model SmartBillingSystem.Models.ViewModels.BillResultViewModel
+@{
+    ViewData["Title"] = "Bill " + Model.Bill.BillId;
+}
+
+<section class="section section--inverted texture-lines no-print" style="padding-top: var(--space-12); padding-bottom: var(--space-12);">
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
+            <div>
+                <p class="text-label" style="margin-bottom: var(--space-2);">Invoice</p>
+                <h2 style="font-size: var(--text-display); line-height: 1;">#@Model.Bill.BillId</h2>
+            </div>
+            <div style="text-align: right;">
+                <p class="text-label" style="margin-bottom: var(--space-2);">Grand Total</p>
+                <p class="text-numeric" style="font-size: var(--text-section); font-weight: 700; font-family: var(--font-display);">
+                    ₹@Model.Bill.GrandTotal.ToString("N2")
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="section-rule no-print" />
+
+<section class="section">
+    <div class="container">
+        <div data-animate="fade-up" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-4); margin-bottom: var(--space-12);">
+            <div>
+                <p class="text-label" style="margin-bottom: var(--space-2);">Date</p>
+                <p class="text-numeric" style="font-family: var(--font-mono); font-size: var(--text-body);">
+                    @Model.Bill.DateCreated.ToString("dd MMMM yyyy")
+                </p>
+            </div>
+            <div style="text-align: right;">
+                <p class="text-label" style="margin-bottom: var(--space-2);">Items</p>
+                <p class="text-numeric" style="font-family: var(--font-mono); font-size: var(--text-body);">
+                    @Model.Bill.Items.Count
+                </p>
+            </div>
+        </div>
+
+        <hr class="section-rule section-rule--thin" style="margin-bottom: var(--space-8);" />
+
+        <div data-animate="fade-up" data-animate-delay="1">
+            <table class="bill-table">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">#</th>
+                        <th style="width: 40%;">Product</th>
+                        <th style="width: 18%;" class="text-right">Price</th>
+                        <th style="width: 10%;" class="text-right">Qty</th>
+                        <th style="width: 18%;" class="text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Bill.Items)
+                    {
+                        <tr>
+                            <td class="text-muted">@item.Id</td>
+                            <td>@item.ProductName</td>
+                            <td class="text-right text-numeric">₹@item.UnitPrice.ToString("N2")</td>
+                            <td class="text-right text-numeric">@item.Quantity</td>
+                            <td class="text-right text-numeric">₹@item.LineTotal.ToString("N2")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: var(--space-8);" data-animate="fade-up" data-animate-delay="2">
+            <div class="bill-summary" style="min-width: 300px; max-width: 420px; width: 100%;">
+                <div class="total-row">
+                    <span class="text-label">Subtotal</span>
+                    <span class="text-numeric">₹@Model.Bill.Subtotal.ToString("N2")</span>
+                </div>
+                <div class="total-row">
+                    <span class="text-label">GST (@Model.Bill.TaxRate.ToString("P0"))</span>
+                    <span class="text-numeric">₹@Model.Bill.TaxAmount.ToString("N2")</span>
+                </div>
+                <div class="total-row total-row--grand">
+                    <span>Total</span>
+                    <span class="text-numeric">₹@Model.Bill.GrandTotal.ToString("N2")</span>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.Bill.Recommendations.Any())
+        {
+            <hr class="section-rule section-rule--thin" style="margin-top: var(--space-16);" />
+            <div data-animate="fade-up" data-animate-delay="3" style="margin-top: var(--space-12);">
+                <p class="text-label" style="margin-bottom: var(--space-8);">AI Recommendations</p>
+                <div class="recommendation-grid">
+                    @foreach (var rec in Model.Bill.Recommendations)
+                    {
+                        <div class="recommendation-card">
+                            <p class="text-label" style="margin-bottom: var(--space-3);">Suggested</p>
+                            <p style="font-family: var(--font-display); font-size: var(--text-body-lg); font-weight: 700;">
+                                @rec
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <hr class="section-rule section-rule--thin no-print" style="margin-top: var(--space-12);" />
+
+        <div class="no-print" style="margin-top: var(--space-8); display: flex; gap: var(--space-4); flex-wrap: wrap;" data-animate="fade-up" data-animate-delay="4">
+            <button type="button" class="btn btn--primary" onclick="window.print()">Print</button>
+            <form asp-action="DownloadPdf" asp-controller="Bill" method="post" style="display: inline;">
+                @Html.AntiForgeryToken()
+                @foreach (var item in Model.Bill.Items)
+                {
+                    <input type="hidden" name="items[@(item.Id - 1)].ProductName" value="@item.ProductName" />
+                    <input type="hidden" name="items[@(item.Id - 1)].UnitPrice" value="@item.UnitPrice" />
+                    <input type="hidden" name="items[@(item.Id - 1)].Quantity" value="@item.Quantity" />
+                }
+                <button type="submit" class="btn btn--secondary">Download PDF</button>
+            </form>
+            <a asp-controller="Bill" asp-action="Create" class="btn btn--ghost">← New Bill</a>
+        </div>
+    </div>
+</section>

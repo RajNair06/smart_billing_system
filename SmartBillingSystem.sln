@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{76A072A2-B106-413D-AA93-60BEF6429C31}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartBillingSystem", "src\SmartBillingSystem\SmartBillingSystem.csproj", "{6525853F-1141-4D74-91B2-C99917DA0AEF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6525853F-1141-4D74-91B2-C99917DA0AEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6525853F-1141-4D74-91B2-C99917DA0AEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6525853F-1141-4D74-91B2-C99917DA0AEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6525853F-1141-4D74-91B2-C99917DA0AEF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6525853F-1141-4D74-91B2-C99917DA0AEF} = {76A072A2-B106-413D-AA93-60BEF6429C31}
+	EndGlobalSection
+EndGlobal

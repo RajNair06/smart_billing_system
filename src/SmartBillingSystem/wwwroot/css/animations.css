@@ -1,0 +1,26 @@
+[data-animate] {
+  opacity: 0;
+  transition: opacity var(--duration-instant);
+}
+
+[data-animate="fade-in"] {
+  /* opacity only */
+}
+
+[data-animate="fade-up"] {
+  transform: translateY(8px);
+  transition: opacity var(--duration-instant), transform var(--duration-instant);
+}
+
+.is-visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-animate] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

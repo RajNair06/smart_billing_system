@@ -1,0 +1,23 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+COPY src/SmartBillingSystem/SmartBillingSystem.csproj ./src/SmartBillingSystem/
+RUN dotnet restore src/SmartBillingSystem/SmartBillingSystem.csproj
+
+COPY . ./
+RUN dotnet publish src/SmartBillingSystem/SmartBillingSystem.csproj \
+    -c Release \
+    --no-restore \
+    -o /app/publish \
+    /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/publish ./
+
+ENV ASPNETCORE_HTTP_PORTS=80
+ENV DOTNET_EnableDiagnostics=0
+
+EXPOSE 80
+
+ENTRYPOINT ["dotnet", "SmartBillingSystem.dll"]

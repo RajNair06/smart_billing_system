@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "Smart Billing System";
+}
+
+<section class="section texture-lines" style="padding-top: var(--space-32); padding-bottom: var(--space-32); min-height: 70vh; display: flex; align-items: center;">
+    <div class="container">
+        <p class="text-label" data-animate="fade-in" style="margin-bottom: var(--space-6);">
+            Invoicing System
+        </p>
+        <h1 data-animate="fade-up" style="margin-bottom: var(--space-6);">
+            Bills,<br />
+            <em class="text-italic">simplified.</em>
+        </h1>
+        <hr class="section-rule section-rule--thin" style="max-width: 8rem; margin-bottom: var(--space-6);" />
+        <p data-animate="fade-up" data-animate-delay="1" style="max-width: 480px; margin-bottom: var(--space-8); color: var(--color-muted-fg);">
+            Enter products, receive AI recommendations, generate invoices with 18% GST.
+        </p>
+        <div data-animate="fade-up" data-animate-delay="2">
+            <a asp-controller="Bill" asp-action="Create" class="btn btn--primary">
+                Create Bill →
+            </a>
+        </div>
+    </div>
+</section>

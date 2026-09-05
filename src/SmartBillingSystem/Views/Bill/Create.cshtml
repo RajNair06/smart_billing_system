@@ -1,0 +1,71 @@
+@model SmartBillingSystem.Models.ViewModels.CreateBillViewModel
+@{
+    ViewData["Title"] = "Create Bill";
+}
+
+<section class="section" style="padding-top: var(--space-24); padding-bottom: var(--space-24);">
+    <div class="container">
+        <p class="text-label" data-animate="fade-in" style="margin-bottom: var(--space-6);">New Invoice</p>
+        <h1 data-animate="fade-up" style="margin-bottom: var(--space-12); font-size: var(--text-display);">
+            Create <em class="text-italic">your bill.</em>
+        </h1>
+
+        <hr class="section-rule section-rule--thin" style="margin-bottom: var(--space-12);" />
+
+        <form id="billing-form" asp-action="Create" asp-controller="Bill" method="post" data-animate="fade-up" data-animate-delay="1">
+            @Html.AntiForgeryToken()
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div style="border: 2px solid #000; padding: var(--space-4); margin-bottom: var(--space-8); background: var(--color-muted);">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <p style="font-family: var(--font-mono); font-size: var(--text-micro); text-transform: uppercase; letter-spacing: var(--tracking-widest); margin: 0;">@error.ErrorMessage</p>
+                    }
+                </div>
+            }
+
+            <table class="product-table">
+                <thead>
+                    <tr>
+                        <th style="width: 36%;">Product</th>
+                        <th style="width: 18%;" class="text-right">Price (₹)</th>
+                        <th style="width: 10%;" class="text-right">Qty</th>
+                        <th style="width: 16%;" class="text-right">Total</th>
+                        <th style="width: 20%;"></th>
+                    </tr>
+                </thead>
+                <tbody id="product-rows">
+                </tbody>
+            </table>
+
+            <div style="display: flex; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-16);">
+                <button type="button" class="btn btn--ghost" id="add-row-btn">+ Add Row</button>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end;" data-animate="fade-up" data-animate-delay="2">
+                <div class="bill-summary" style="min-width: 300px; max-width: 420px; width: 100%;">
+                    <div class="total-row">
+                        <span class="text-label">Subtotal</span>
+                        <span class="text-numeric" id="subtotal-display">₹0.00</span>
+                    </div>
+                    <div class="total-row">
+                        <span class="text-label">GST (18%)</span>
+                        <span class="text-numeric" id="tax-display">₹0.00</span>
+                    </div>
+                    <div class="total-row total-row--grand">
+                        <span>Total</span>
+                        <span class="text-numeric" id="grand-total-display">₹0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="section-rule section-rule--thin" style="margin-top: var(--space-12); margin-bottom: var(--space-8);" />
+
+            <div style="display: flex; gap: var(--space-4); flex-wrap: wrap;">
+                <button type="submit" class="btn btn--primary">Generate Bill →</button>
+                <a asp-controller="Home" asp-action="Index" class="btn btn--secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
