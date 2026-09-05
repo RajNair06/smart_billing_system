@@ -14,7 +14,7 @@ public class GeminiService : IGeminiService
     {
         _httpClient = httpClient;
         _apiKey = config["Gemini:ApiKey"] ?? string.Empty;
-        _model = config["Gemini:Model"] ?? "gemini-2.5-flash";
+        _model = config["Gemini:Model"] ?? "gemini-3.6-flash";
         _logger = logger;
     }
 
