@@ -10,15 +10,18 @@ public class BillController : Controller
     private readonly IBillingService _billingService;
     private readonly IGeminiService _geminiService;
     private readonly IPdfGenerationService _pdfService;
+    private readonly ILogger<BillController> _logger;
 
     public BillController(
         IBillingService billingService,
         IGeminiService geminiService,
-        IPdfGenerationService pdfService)
+        IPdfGenerationService pdfService,
+        ILogger<BillController> logger)
     {
         _billingService = billingService;
         _geminiService = geminiService;
         _pdfService = pdfService;
+        _logger = logger;
     }
 
     public IActionResult Create()

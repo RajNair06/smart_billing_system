@@ -63,7 +63,10 @@ public class GeminiService : IGeminiService
     private async Task<List<string>> CallGeminiAsync(string prompt)
     {
         if (string.IsNullOrEmpty(_apiKey))
+        {
+            _logger.LogError("Gemini API key is not configured");
             throw new Exception("Gemini API key is not configured");
+        }
 
         var requestBody = BuildRequestBody(prompt);
 
@@ -72,15 +75,41 @@ public class GeminiService : IGeminiService
             requestBody);
 
         var rawContent = await response.Content.ReadAsStringAsync();
+        
+        _logger.LogInformation("Gemini API response status: {StatusCode}", response.StatusCode);
+        _logger.LogDebug("Gemini API raw response: {Response}", rawContent.Substring(0, Math.Min(500, rawContent.Length)));
 
         if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogError("Gemini API error: {StatusCode} - {Response}", response.StatusCode, rawContent);
             throw new Exception($"Gemini API {response.StatusCode}: {rawContent}");
+        }
 
-        var json = JsonDocument.Parse(rawContent);
+        // Check if response is HTML (starts with '<')
+        if (rawContent.TrimStart().StartsWith("<"))
+        {
+            _logger.LogError("Gemini API returned HTML instead of JSON: {Response}", rawContent.Substring(0, Math.Min(200, rawContent.Length)));
+            throw new Exception("Gemini API returned invalid response (HTML instead of JSON)");
+        }
+
+        JsonDocument json;
+        try
+        {
+            json = JsonDocument.Parse(rawContent);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to parse Gemini response as JSON. Response: {Response}", rawContent);
+            throw new Exception($"Failed to parse Gemini response: {ex.Message}");
+        }
+
         var candidates = json.RootElement.GetProperty("candidates");
 
         if (candidates.GetArrayLength() == 0)
+        {
+            _logger.LogWarning("Gemini returned empty candidates");
             throw new Exception("Gemini returned empty candidates");
+        }
 
         var parts = candidates[0].GetProperty("content").GetProperty("parts");
         string rawText = "[]";

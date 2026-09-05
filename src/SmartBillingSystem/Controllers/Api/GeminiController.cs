@@ -8,10 +8,12 @@ namespace SmartBillingSystem.Controllers.Api;
 public class GeminiController : ControllerBase
 {
     private readonly IGeminiService _gemini;
+    private readonly ILogger<GeminiController> _logger;
 
-    public GeminiController(IGeminiService gemini)
+    public GeminiController(IGeminiService gemini, ILogger<GeminiController> logger)
     {
         _gemini = gemini;
+        _logger = logger;
     }
 
     [HttpPost("recommend")]
@@ -27,6 +29,7 @@ public class GeminiController : ControllerBase
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error getting recommendations for products: {Products}", string.Join(", ", request.Products));
             return StatusCode(500, new { error = ex.Message });
         }
     }
