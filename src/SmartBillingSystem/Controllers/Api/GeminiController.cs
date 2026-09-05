@@ -20,8 +20,15 @@ public class GeminiController : ControllerBase
         if (request.Products == null || request.Products.Length == 0)
             return BadRequest("No products provided.");
 
-        var recommendations = await _gemini.GetBillRecommendationsAsync(request.Products.ToList());
-        return Ok(new { recommendations });
+        try
+        {
+            var recommendations = await _gemini.GetBillRecommendationsAsync(request.Products.ToList());
+            return Ok(new { recommendations });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = ex.Message });
+        }
     }
 }
 

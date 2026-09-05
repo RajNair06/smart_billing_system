@@ -38,31 +38,16 @@
     init() {
       this.tbody = document.getElementById('product-rows');
       const addBtn = document.getElementById('add-row-btn');
-      const emptyAddBtn = document.getElementById('empty-add-btn');
       const suggestBtn = document.getElementById('suggest-btn');
-      const dismissBtn = document.getElementById('dismiss-helper');
       
       if (!this.tbody) return;
 
       addBtn?.addEventListener('click', () => this.addRow());
-      emptyAddBtn?.addEventListener('click', () => {
-        this.addRow();
-        this.updateViewState();
-      });
-      
       suggestBtn?.addEventListener('click', () => this.suggestForAllProducts());
-      
-      dismissBtn?.addEventListener('click', () => {
-        const helper = document.getElementById('table-helper');
-        if (helper) helper.style.display = 'none';
-      });
 
       this.tbody.addEventListener('click', (e) => {
         const removeBtn = e.target.closest('.btn-remove-row');
-        if (removeBtn) {
-          this.removeRow(removeBtn.closest('tr'));
-          this.updateViewState();
-        }
+        if (removeBtn) this.removeRow(removeBtn.closest('tr'));
       });
 
       document.addEventListener('keydown', (e) => {
@@ -71,8 +56,6 @@
           this.addRow();
         }
       });
-
-      this.updateViewState();
     },
 
     addRow(data) {
@@ -121,27 +104,16 @@
         setTimeout(() => firstInput.focus(), 100);
       }
 
-      this.updateSuggestButton();
       return tr;
     },
 
     removeRow(tr) {
       if (!tr) return;
-      if (this.tbody.querySelectorAll('tr').length <= 1) {
-        tr.querySelector('.product-name').value = '';
-        tr.querySelector('.product-qty').value = 1;
-        tr.querySelector('.product-price').value = '';
-        tr.querySelector('.product-row-total').textContent = '₹0.00';
-        TotalCalculator.recalculate();
-        this.updateSuggestButton();
-        return;
-      }
       tr.style.opacity = '0';
       tr.style.transition = 'opacity 100ms';
       setTimeout(() => {
         tr.remove();
         TotalCalculator.recalculate();
-        this.updateSuggestButton();
       }, 100);
     },
 
@@ -197,39 +169,11 @@
         btn.onclick = () => {
           this.addRow({ name: product, quantity: 1 });
           TotalCalculator.recalculate();
-          this.updateViewState();
         };
         list.appendChild(btn);
       });
 
       section.style.display = 'block';
-    },
-
-    updateViewState() {
-      const hasProducts = this.tbody.querySelectorAll('tr').length > 0;
-      const emptyState = document.getElementById('empty-state');
-      const tableWrapper = document.getElementById('table-wrapper');
-
-      if (hasProducts) {
-        emptyState.style.display = 'none';
-        tableWrapper.style.display = 'block';
-      } else {
-        emptyState.style.display = 'block';
-        tableWrapper.style.display = 'none';
-      }
-
-      this.updateSuggestButton();
-    },
-
-    updateSuggestButton() {
-      const suggestBtn = document.getElementById('suggest-btn');
-      if (!suggestBtn) return;
-      
-      const hasProducts = this.tbody.querySelectorAll('tr').length > 0;
-      const hasProductNames = Array.from(document.querySelectorAll('.product-name'))
-        .some(input => input.value.trim().length > 0);
-      
-      suggestBtn.disabled = !hasProducts || !hasProductNames;
     }
   };
 
