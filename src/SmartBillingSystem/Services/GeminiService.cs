@@ -71,10 +71,6 @@ public class GeminiService : IGeminiService
             {
                 temperature = 0.7,
                 maxOutputTokens = 256
-            },
-            thinkingConfig = new
-            {
-                thinkingBudget = 0
             }
         };
     }
@@ -120,13 +116,15 @@ public class GeminiService : IGeminiService
                 if (part.TryGetProperty("text", out var textProp))
                 {
                     var text = textProp.GetString();
-                    if (!string.IsNullOrEmpty(text) && !part.TryGetProperty("thoughtSignature", out _))
+                    if (!string.IsNullOrWhiteSpace(text))
                     {
                         rawText = text;
                         break;
                     }
                 }
             }
+
+            _logger.LogInformation("Gemini raw response: {RawText}", rawText);
 
             rawText = rawText.Replace("```json", "").Replace("```", "").Trim();
 
