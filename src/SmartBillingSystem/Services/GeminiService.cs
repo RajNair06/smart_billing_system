@@ -78,63 +78,44 @@ public class GeminiService : IGeminiService
     private async Task<List<string>> CallGeminiAsync(string prompt)
     {
         if (string.IsNullOrEmpty(_apiKey))
+            throw new Exception("Gemini API key is not configured");
+
+        var requestBody = BuildRequestBody(prompt);
+
+        var response = await _httpClient.PostAsJsonAsync(
+            $"v1beta/models/{_model}:generateContent?key={_apiKey}",
+            requestBody);
+
+        var rawContent = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+            throw new Exception($"Gemini API {response.StatusCode}: {rawContent}");
+
+        var json = JsonDocument.Parse(rawContent);
+        var candidates = json.RootElement.GetProperty("candidates");
+
+        if (candidates.GetArrayLength() == 0)
+            throw new Exception("Gemini returned empty candidates");
+
+        var parts = candidates[0].GetProperty("content").GetProperty("parts");
+        string rawText = "[]";
+
+        foreach (var part in parts.EnumerateArray())
         {
-            _logger.LogWarning("Gemini API key not configured. Returning empty recommendations.");
-            return new List<string>();
-        }
-
-        try
-        {
-            var requestBody = BuildRequestBody(prompt);
-
-            var response = await _httpClient.PostAsJsonAsync(
-                $"v1beta/models/{_model}:generateContent?key={_apiKey}",
-                requestBody);
-
-            if (!response.IsSuccessStatusCode)
+            if (part.TryGetProperty("text", out var textProp))
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                _logger.LogError("Gemini API error {StatusCode}: {ErrorContent}", 
-                    response.StatusCode, errorContent);
-                return new List<string>();
-            }
-
-            var json = await response.Content.ReadFromJsonAsync<JsonDocument>();
-            var candidates = json!.RootElement.GetProperty("candidates");
-            
-            if (candidates.GetArrayLength() == 0)
-            {
-                _logger.LogWarning("Gemini returned empty candidates");
-                return new List<string>();
-            }
-
-            var parts = candidates[0].GetProperty("content").GetProperty("parts");
-            string rawText = "[]";
-
-            foreach (var part in parts.EnumerateArray())
-            {
-                if (part.TryGetProperty("text", out var textProp))
+                var text = textProp.GetString();
+                if (!string.IsNullOrWhiteSpace(text))
                 {
-                    var text = textProp.GetString();
-                    if (!string.IsNullOrWhiteSpace(text))
-                    {
-                        rawText = text;
-                        break;
-                    }
+                    rawText = text;
+                    break;
                 }
             }
-
-            _logger.LogInformation("Gemini raw response: {RawText}", rawText);
-
-            rawText = rawText.Replace("```json", "").Replace("```", "").Trim();
-
-            var recommendations = JsonSerializer.Deserialize<List<string>>(rawText) ?? new();
-            return recommendations;
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to get Gemini recommendations");
-            return new List<string>();
-        }
+
+        rawText = rawText.Replace("```json", "").Replace("```", "").Trim();
+
+        var recommendations = JsonSerializer.Deserialize<List<string>>(rawText) ?? new();
+        return recommendations;
     }
 }

@@ -63,8 +63,15 @@ public class BillController : Controller
         if (string.IsNullOrWhiteSpace(productName))
             return Json(new { recommendations = new List<string>() });
 
-        var result = await _geminiService.GetProductRecommendationAsync(productName);
-        return Json(new { recommendations = result.Recommendations });
+        try
+        {
+            var result = await _geminiService.GetProductRecommendationAsync(productName);
+            return Json(new { recommendations = result.Recommendations });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { recommendations = new List<string>(), error = ex.Message });
+        }
     }
 
     public IActionResult Result(string? billId)
