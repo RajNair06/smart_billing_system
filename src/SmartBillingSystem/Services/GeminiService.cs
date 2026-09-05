@@ -14,7 +14,7 @@ public class GeminiService : IGeminiService
     {
         _httpClient = httpClient;
         _apiKey = config["Gemini:ApiKey"] ?? string.Empty;
-        _model = config["Gemini:Model"] ?? "gemini-2.0-flash";
+        _model = config["Gemini:Model"] ?? "gemini-2.5-flash";
         _logger = logger;
     }
 
@@ -71,7 +71,13 @@ public class GeminiService : IGeminiService
                 $"v1beta/models/{_model}:generateContent?key={_apiKey}",
                 requestBody);
 
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _logger.LogError("Gemini API error {StatusCode}: {ErrorContent}", 
+                    response.StatusCode, errorContent);
+                return new List<string>();
+            }
 
             var json = await response.Content.ReadFromJsonAsync<JsonDocument>();
             string rawText = json!.RootElement
