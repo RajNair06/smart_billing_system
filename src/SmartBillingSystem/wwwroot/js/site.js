@@ -39,6 +39,7 @@
     init() {
       this.tbody = document.getElementById('product-rows');
       const addBtn = document.getElementById('add-row-btn');
+      const suggestBtn = document.getElementById('suggest-btn');
       const generateBtn = document.getElementById('generate-bill-btn');
       const form = document.getElementById('billing-form');
       
@@ -49,12 +50,16 @@
       
       generateBtn?.addEventListener('click', (e) => {
         e.preventDefault();
-        this.showCustomerInfo();
-      });
-
-      form?.addEventListener('submit', (e) => {
-        if (!this.validateBeforeSubmit(e)) {
-          e.preventDefault();
+        
+        // First click: show customer info
+        if (!this.customerInfoShown) {
+          this.showCustomerInfo();
+          return;
+        }
+        
+        // Second click: validate and submit
+        if (this.validateBeforeSubmit()) {
+          form.submit();
         }
       });
 
@@ -214,12 +219,7 @@
       }
     },
 
-    validateBeforeSubmit(e) {
-      if (!this.customerInfoShown) {
-        this.showCustomerInfo();
-        return false;
-      }
-
+    validateBeforeSubmit() {
       const nameInput = document.getElementById('CustomerName');
       const contactInput = document.getElementById('CustomerContact');
 
