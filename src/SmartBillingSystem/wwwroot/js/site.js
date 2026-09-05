@@ -45,6 +45,7 @@
       if (!this.tbody) return;
 
       addBtn?.addEventListener('click', () => this.addRow());
+      suggestBtn?.addEventListener('click', () => this.suggestForAllProducts());
       
       generateBtn?.addEventListener('click', (e) => {
         e.preventDefault();
@@ -129,6 +130,66 @@
         tr.remove();
         TotalCalculator.recalculate();
       }, 100);
+    },
+
+    async suggestForAllProducts() {
+      const btn = document.getElementById('suggest-btn');
+      const products = Array.from(document.querySelectorAll('.product-name'))
+        .map(input => input.value.trim())
+        .filter(name => name.length > 0);
+
+      if (products.length === 0) {
+        alert('Please add at least one product first');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Analyzing';
+      btn.classList.add('btn--loading');
+
+      try {
+        const response = await fetch('/api/gemini/recommend', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ products })
+        });
+
+        const data = await response.json();
+        this.displayRecommendations(data.recommendations || []);
+      } catch (error) {
+        console.error('Failed to get recommendations:', error);
+        alert('Failed to get recommendations. Please try again.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Suggest Products';
+        btn.classList.remove('btn--loading');
+      }
+    },
+
+    displayRecommendations(recommendations) {
+      const section = document.getElementById('recommendations-section');
+      const list = document.getElementById('recommendations-list');
+
+      list.innerHTML = '';
+
+      if (recommendations.length === 0) {
+        section.style.display = 'none';
+        return;
+      }
+
+      recommendations.forEach(product => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn--secondary btn--small';
+        btn.textContent = `+ ${product}`;
+        btn.onclick = () => {
+          this.addRow({ name: product });
+          TotalCalculator.recalculate();
+        };
+        list.appendChild(btn);
+      });
+
+      section.style.display = 'block';
     },
 
     showCustomerInfo() {
